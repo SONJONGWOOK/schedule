@@ -46,10 +46,49 @@ var Day = function (_React$Component) {
                 dayOfWeek = _ref.dayOfWeek,
                 isMonth = _ref.isMonth,
                 year = _ref.year,
-                isToday = _ref.isToday;
+                isToday = _ref.isToday,
+                dayOnclick = _ref.dayOnclick,
+                schedule = _ref.schedule;
 
-            console.log(isMonth);
 
+            var addSchedule = schedule.map(function (value, index) {
+                var type = value.type;
+                var display = void 0;
+                switch (type) {
+                    case 'SELECT':
+                        display = React.createElement(
+                            "span",
+                            null,
+                            "\u2714"
+                        );
+                        break;
+                    case 'TYPE1':
+                        display = React.createElement(
+                            "span",
+                            null,
+                            "\u2710"
+                        );
+                        break;
+                    case 'TYPE2':
+                        display = React.createElement(
+                            "span",
+                            null,
+                            "\u270C"
+                        );
+                        break;
+                    default:
+                        display = React.createElement(
+                            "span",
+                            null,
+                            "\u270B"
+                        );
+                }
+                return React.createElement(
+                    "span",
+                    { className: "scheduleIcon", key: day + "" + index },
+                    display
+                );
+            });
             var className = isMonth ? "day" : "day otherMonth";
             var addMonth = isMonth ? "" : React.createElement(
                 "span",
@@ -64,7 +103,7 @@ var Day = function (_React$Component) {
                 day,
                 "\uC77C"
             );
-
+            // console.log(dayOnclick())
             return React.createElement(
                 "div",
                 {
@@ -75,9 +114,18 @@ var Day = function (_React$Component) {
                     onMouseOut: function onMouseOut(event) {
                         _this._outEvent(event);
                     },
+                    onClick: function onClick(event) {
+                        dayOnclick(event, _this);
+                    },
                     style: _this._customStyle()
                 },
-                el
+                "   ",
+                el,
+                React.createElement(
+                    "div",
+                    { className: "scheduleBox" },
+                    addSchedule
+                )
             );
         };
 
@@ -88,7 +136,9 @@ var Day = function (_React$Component) {
                 year: _this.props.year,
                 dayOfWeek: _this.props.dayOfWeek,
                 isMonth: _this.props.isMonth,
-                isToday: _this.props.isToday
+                isToday: _this.props.isToday,
+                dayOnclick: _this.props.dayOnclick,
+                schedule: _this.props.schedule
             });
         };
 

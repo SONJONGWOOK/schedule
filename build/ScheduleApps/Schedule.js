@@ -8,9 +8,14 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Reactstrap = Reactstrap,
-    Button = _Reactstrap.Button,
-    ButtonGroup = _Reactstrap.ButtonGroup;
+var _ReactBootstrap = ReactBootstrap,
+    InputGroup = _ReactBootstrap.InputGroup,
+    DropdownButton = _ReactBootstrap.DropdownButton,
+    Dropdown = _ReactBootstrap.Dropdown,
+    FormControl = _ReactBootstrap.FormControl,
+    Table = _ReactBootstrap.Table,
+    Button = _ReactBootstrap.Button,
+    ButtonGroup = _ReactBootstrap.ButtonGroup;
 
 //윈도우 달력과 동일하게 제작
 //총 6줄 기준은 1일에 기준에 맞추서 제작
@@ -33,6 +38,60 @@ var Schedule = function (_React$Component) {
     _classCallCheck(this, Schedule);
 
     var _this = _possibleConstructorReturn(this, (Schedule.__proto__ || Object.getPrototypeOf(Schedule)).call(this, props));
+
+    _this._changeDropValue = function (e) {
+
+      _this.setState({
+        dropDownValue: e.currentTarget.textContent
+      });
+    };
+
+    _this._changeInputValue = function (e) {
+      // console.log(e.target.value)
+      _this.inputText = e.target.value;
+    };
+
+    _this._customStyle = function () {
+      if (_this.state.inputOpen) {
+        return { display: "block" };
+      } else {
+        return { display: "none" };
+      }
+    };
+
+    _this._dayOnclick = function (event, thisObject) {
+
+      var date = new Date(thisObject.props.year, thisObject.props.month - 1, thisObject.props.day);
+      _this.detail = thisObject.props.schedule;
+      _this.setState({
+        inputOpen: true,
+        inputDay: date
+      });
+
+      _this.clickDay = date;
+    };
+
+    _this._inputSave = function (event, thisObject) {
+
+      var inputDay = _this.state.inputDay;
+      var list = _this.state.list;
+
+      var inputData = {
+        date: inputDay,
+        type: _this.state.dropDownValue,
+        text: document.querySelector("#inputText").value
+      };
+      console.log(inputData);
+
+      list.push(inputData);
+      //초기화
+      _this.setState({
+        // inputOpen : false,
+        dropDownValue: _this.dropDownText,
+        list: list
+      });
+      document.querySelector("#inputText").value = "";
+    };
 
     _this._prevMonth = function () {
       var dt = new Date(_this.state.now);
@@ -86,7 +145,7 @@ var Schedule = function (_React$Component) {
       var arr = [];
       var firstDay = _this._getFirstDate(_this.state.now);
       var preDay = _this._getPrevDay(firstDay);
-
+      //달력에 표시되는날짜는 총 42일
       for (var i = 0; i < 42; i++) {
         var pushDate = new Date(preDay);
         arr.push(_this._setData(pushDate));
@@ -97,11 +156,19 @@ var Schedule = function (_React$Component) {
     };
 
     _this._setData = function (date) {
+
+      var list = _this.state.list;
+
+      var matchList = list.filter(function (el) {
+        return el.date.getTime() == date.getTime();
+      });
+
       return {
         date: date,
         dayOfWeek: _this.days[date.getDay()],
         isMonth: date.getMonth() == _this.state.now.getMonth() ? true : false,
-        isToday: date.toLocaleDateString() == new Date().toLocaleDateString() ? true : false
+        isToday: date.toLocaleDateString() == new Date().toLocaleDateString() ? true : false,
+        schedule: matchList
       };
     };
 
@@ -114,10 +181,12 @@ var Schedule = function (_React$Component) {
           key: index,
           day: value.date.getDate(),
           month: value.date.getMonth() + 1,
-          year: value.date.getMonth(),
+          year: value.date.getFullYear(),
           dayOfWeek: value.dayOfWeek,
           isMonth: value.isMonth,
-          isToday: value.isToday
+          isToday: value.isToday,
+          dayOnclick: _this._dayOnclick,
+          schedule: value.schedule
         });
       });
     };
@@ -127,32 +196,175 @@ var Schedule = function (_React$Component) {
       return dt.getFullYear() + '년 ' + parseInt(dt.getMonth() + 1) + '월';
     };
 
+    _this._bottomHeder = function () {
+      console.log(_this.clickDay);
+      return React.createElement(
+        'h1',
+        { style: _this._customStyle() },
+        _this.clickDay.toLocaleDateString() + " detail schedule"
+      );
+    };
+
+    _this._inputgroup = function () {
+      //드롭다운 버튼 
+      //<button type="button" tabindex="0" class="dropdown-item">1</button>
+      return React.createElement(
+        'div',
+        { className: 'inputArea', style: _this._customStyle() },
+        React.createElement(
+          InputGroup,
+          { className: 'mb-3' },
+          React.createElement(
+            DropdownButton,
+            {
+              as: InputGroup.Prepend,
+              variant: 'outline-secondary',
+              title: _this.state.dropDownValue,
+              id: 'input-group-dropdown-1' },
+            React.createElement(
+              Dropdown.Item,
+              { onClick: function onClick(event) {
+                  return _this._changeDropValue(event);
+                } },
+              'TYPE1'
+            ),
+            React.createElement(
+              Dropdown.Item,
+              { onClick: function onClick(event) {
+                  return _this._changeDropValue(event);
+                } },
+              'TYPE2'
+            ),
+            React.createElement(Dropdown.Divider, null),
+            React.createElement(
+              Dropdown.Item,
+              { onClick: function onClick(event) {
+                  return _this._changeDropValue(event);
+                } },
+              'TYPE3'
+            )
+          ),
+          React.createElement(FormControl, { 'aria-describedby': 'basic-addon1', id: 'inputText', type: 'text', placeholder: '\uB0B4\uC6A9' }),
+          React.createElement(
+            Button,
+            { color: 'secondary', onClick: function onClick(event) {
+                _this._inputSave(event, _this);
+              } },
+            'SAVE'
+          )
+        )
+      );
+    };
+
+    _this._detailgroup = function () {
+      // console.log(this.detail)
+      var addBody = _this.detail.map(function (value, index) {
+        return React.createElement(
+          'tr',
+          { key: index },
+          React.createElement(
+            'th',
+            { scope: 'row' },
+            index + 1
+          ),
+          React.createElement(
+            'td',
+            null,
+            value.date.toLocaleDateString()
+          ),
+          React.createElement(
+            'td',
+            null,
+            value.type
+          ),
+          React.createElement(
+            'td',
+            null,
+            value.text
+          )
+        );
+        // return <div key={index} >{value.text}</div>
+      });
+
+      return React.createElement(
+        Table,
+        { style: _this._customStyle(), hover: true },
+        React.createElement(
+          'thead',
+          null,
+          React.createElement(
+            'tr',
+            null,
+            React.createElement('th', null),
+            React.createElement(
+              'th',
+              { className: 'detail' },
+              '\uC77C\uC790'
+            ),
+            React.createElement(
+              'th',
+              { className: 'detail' },
+              '\uC885\uB958'
+            ),
+            React.createElement(
+              'th',
+              { className: 'detail' },
+              '\uB0B4\uC6A9'
+            )
+          )
+        ),
+        React.createElement(
+          'tbody',
+          null,
+          addBody
+        )
+      );
+
+      // return <div style={this._customStyle()} > {this.detail} </div>
+    };
+
+    _this.dropDownText = 'SELECT';
+    _this.inputText;
+    _this.detail;
+    _this.clickDay;
     _this.today = new Date();
     _this.days = ['일', '월', '화', '수', '목', '금', '토'];
 
     _this.state = {
-      now: _this.today
-    };
+      now: _this.today,
+      inputOpen: false,
+      dropdownOpen: false,
+      splitButtonOpen: false,
+      dropDownValue: _this.dropDownText,
+      list: []
 
-    return _this;
+      //데이터 형태
+      // { date : 날짜  : type  : 타입 : text : 할일}
+
+    };return _this;
   }
 
   _createClass(Schedule, [{
     key: 'componentDidMount',
-    value: function componentDidMount() {
-
-      //총 42칸 제작 = 7*6
-      //달 시작
-      // console.log(new Date( this.year , this.today.getMonth() , 1).toLocaleDateString())
-      //달 끝
-      // console.log(new Date( this.year , this.today.getMonth()+1 , 0).toLocaleDateString())
-      //토요일=6 
-
-
-    }
+    value: function componentDidMount() {}
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {}
+
+    //달력 이전달
+
+    // 달력 오늘
+
+    // 달력다음달
+
+    //달의 첫날가져오기
+
+    //달의 마지막날 가져오기
+
+    //요일 표시
+
+    // 저번달 가져오기
+
   }, {
     key: 'render',
     value: function render() {
@@ -195,6 +407,13 @@ var Schedule = function (_React$Component) {
           'div',
           { className: 'main' },
           this.state.now ? this._getCalendar() : '로딩'
+        ),
+        React.createElement(
+          'div',
+          { className: 'bottom' },
+          this.state.inputOpen ? this._bottomHeder() : '',
+          this.state.inputOpen ? this._inputgroup() : '',
+          this.state.inputOpen ? this._detailgroup() : ''
         )
       );
     }

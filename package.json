@@ -5,6 +5,7 @@
   "main": "like_button.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "babel" : "babel src --out-dir build",
     "b1" : "babel src --out-dir . --presets react-app/prod "
   },
   "repository": {

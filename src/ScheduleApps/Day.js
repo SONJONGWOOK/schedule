@@ -1,7 +1,7 @@
 
 class Day extends React.Component{
 
-
+    
     constructor(props) {
         super(props)
         this.today  = new Date()
@@ -30,21 +30,38 @@ class Day extends React.Component{
         })
     }
     
-    _DayInfo = ({day , month, dayOfWeek , isMonth , year , isToday }) =>{
-        console.log(isMonth)
-
+    _DayInfo = ({day , month, dayOfWeek , isMonth , year , isToday , dayOnclick , schedule}) =>{
+        
+        let addSchedule = schedule.map( (value , index) => {
+            let type = value.type
+            let display
+            switch(type){
+                case 'SELECT' :  display = <span>&#10004;</span>
+                break
+                case 'TYPE1' :  display = <span>&#10000;</span>
+                break
+                case 'TYPE2' :  display =  <span>&#9996;</span>
+                break
+                default : display =  <span>&#9995;</span>
+            }
+            return <span className="scheduleIcon"  key={day+""+index}>{display}</span>
+        })
         let className = isMonth ? "day"  : "day otherMonth"
         let addMonth = isMonth ? ""  : <span>{month}월</span>
         let el =<span>{addMonth}{day}일</span>
-       
+        // console.log(dayOnclick())
         return <div 
                     className={className} id={isToday ? "today" : "otherDay" } 
                     onMouseOver={(event) =>{ this._overEvent(event) }}
                     onMouseOut={(event) => { this._outEvent(event) }}
+                    onClick={(event) => { dayOnclick(event , this)  } }
                     style={this._customStyle() }
-                >  
-                {el}
-                    {/* <span>{dayOfWeek}</span> */}
+                >   {el}
+                    <div className="scheduleBox">
+                        {addSchedule}
+                    </div>
+                    
+            
                 </div>
     }
  
@@ -56,6 +73,8 @@ class Day extends React.Component{
             dayOfWeek={this.props.dayOfWeek}
             isMonth={this.props.isMonth}
             isToday={this.props.isToday}
+            dayOnclick={this.props.dayOnclick}
+            schedule={this.props.schedule}
         ></this._DayInfo>
     }
         
@@ -66,5 +85,3 @@ class Day extends React.Component{
         )
     }
 }
-
-
